@@ -28,6 +28,7 @@ define([
         _contextObj: null,
         _button: null,
         _clickHandlerActive: false,
+        _listIndex: null,
 
         constructor: function () {
         },
@@ -63,31 +64,54 @@ define([
                 return;
             }
             this._clickHandlerActive = true;
+            this._listIndex = 0;
             dojoClass.add(this._button, this.activeClass);
             logger.info("Click!");
-            setTimeout(() => {
-                logger.info("Click done!");
-                thisObj._clickHandlerActive = false;
-                dojoClass.remove(thisObj._button, thisObj.activeClass);
-            }, 2000);
-            // dojoArray.forEach(this.nanoflowList, function (nanoflowListItem) {
-            //     thisObj.callNanoflow(nanoflowListItem);
-            // });
+            this.callNanoflow();
         },
 
-        callNanoflow: function (nanoflowListItem) {
+        callNanoflow: function () {
+
+            var nanoflowListItem = this.nanoflowList[this._listIndex],
+                thisObj = this;
+
+            logger.info("Call nanoflow at index postion " + this._listIndex);
 
             mx.data.callNanoflow({
                 nanoflow: nanoflowListItem.nanoflowToCall,
                 origin: this.mxform,
                 context: this.mxcontext,
                 callback: function(result) {
-                    logger.info("Nanoflow completed with result " + result);
+                    thisObj.handleNanoflowCallResult(result);
                 },
                 error: function(error) {
-                    alert(error.message);
+                    logger.info("Nanoflow call failed, error: " + error.message);
+                    thisObj.finalizeButtonClick();
                 }
             });
+        },
+
+        handleNanoflowCallResult: function (result) {
+
+            if (result) {
+                if ((this._listIndex + 1) < this.nanoflowList.length) {
+                    logger.info("Nanoflow completed succesfully, call next nanoflow");
+                    this._listIndex++;
+                    this.callNanoflow();
+                } else {
+                    logger.info("Nanoflow completed succesfully, no more nanoflows to call");
+                    this.finalizeButtonClick();
+                }
+            } else {
+                logger.info("Nanoflow returned false value, stop processing");
+                this.finalizeButtonClick();
+            }
+        },
+
+        finalizeButtonClick: function () {
+            logger.info("Click handling done!");
+            this._clickHandlerActive = false;
+            dojoClass.remove(this._button, this.activeClass);
         },
 
         update: function (obj, callback) {
