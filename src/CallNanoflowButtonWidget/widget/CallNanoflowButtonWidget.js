@@ -5,12 +5,11 @@ define([
     "dojo/dom-class",
     "dojo/dom-style",
     "dojo/dom-construct",
-    "dojo/_base/array",
     "dojo/_base/lang",
     "dojo/on",
     "dojo/_base/event"
 
-], function (declare, _WidgetBase, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoOn, dojoEvent) {
+], function (declare, _WidgetBase, dojoClass, dojoStyle, dojoConstruct, dojoLang, dojoOn, dojoEvent) {
     "use strict";
 
     return declare("CallNanoflowButtonWidget.widget.CallNanoflowButtonWidget", [ _WidgetBase ], {
@@ -21,11 +20,14 @@ define([
         buttonName: "",
         buttonType: "",
         buttonClass: "",
+        activeClass: "",
         buttonGlyphiconClass: "",
         nanoflowList: null,
 
         // Internal variables.
         _contextObj: null,
+        _button: null,
+        _clickHandlerActive: false,
 
         constructor: function () {
         },
@@ -33,8 +35,7 @@ define([
         postCreate: function () {
             logger.debug(this.id + ".postCreate");
 
-            var buttonHtml,
-                button;
+            var buttonHtml;
 
             // Create the basic HTML for the button
             buttonHtml  = "<button type='button' class='btn mx-button btn-" + this.buttonType + "'>";
@@ -44,19 +45,49 @@ define([
             buttonHtml += this.buttonCaption;
             buttonHtml += "</button>";
 
-            button = dojoConstruct.place(buttonHtml, this.domNode);
+            this._button = dojoConstruct.place(buttonHtml, this.domNode);
             if (this.buttonName) {
-                dojoClass.add(button, "mx-name-" + this.buttonName);
+                dojoClass.add(this._button, "mx-name-" + this.buttonName);
             }
             if (this.buttonClass) {
-                dojoClass.add(button, this.buttonClass);
+                dojoClass.add(this._button, this.buttonClass);
             }
-            dojoOn(button, "click", dojoLang.hitch(this, this.handleButtonClick));
+            dojoOn(this._button, "click", dojoLang.hitch(this, this.handleButtonClick));
         },
 
         handleButtonClick: function (e) {
+            var thisObj = this;
             dojoEvent.stop(e);
+            if (this._clickHandlerActive) {
+                logger.info("Click ignored, already processing!");
+                return;
+            }
+            this._clickHandlerActive = true;
+            dojoClass.add(this._button, this.activeClass);
             logger.info("Click!");
+            setTimeout(() => {
+                logger.info("Click done!");
+                thisObj._clickHandlerActive = false;
+                dojoClass.remove(thisObj._button, thisObj.activeClass);
+            }, 2000);
+            // dojoArray.forEach(this.nanoflowList, function (nanoflowListItem) {
+            //     thisObj.callNanoflow(nanoflowListItem);
+            // });
+        },
+
+        callNanoflow: function (nanoflowListItem) {
+
+            mx.data.callNanoflow({
+                nanoflow: nanoflowListItem.nanoflowToCall,
+                origin: this.mxform,
+                context: this.mxcontext,
+                callback: function(result) {
+                    logger.info("Nanoflow completed with result " + result);
+                },
+                error: function(error) {
+                    alert(error.message);
+                }
+            });
         },
 
         update: function (obj, callback) {

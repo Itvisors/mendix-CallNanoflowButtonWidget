@@ -35,6 +35,11 @@
             <category>Configuration</category>
             <description>Button class. Separate multiple values using a space</description>
         </property>
+        <property key="activeClass" type="string" defaultValue="nanoflowRunning">
+            <caption>Active class</caption>
+            <category>Configuration</category>
+            <description>While the nanoflow(s) are called, this class is put on the button. Separate multiple values using a space</description>
+        </property>
         <property key="buttonGlyphiconClass" type="string" required="false">
             <caption>Glyphicon classes</caption>
             <category>Configuration</category>
