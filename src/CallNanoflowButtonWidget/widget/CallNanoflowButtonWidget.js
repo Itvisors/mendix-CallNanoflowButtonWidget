@@ -2,36 +2,61 @@ define([
     "dojo/_base/declare",
     "mxui/widget/_WidgetBase",
 
-    "mxui/dom",
-    "dojo/dom",
-    "dojo/dom-prop",
-    "dojo/dom-geometry",
     "dojo/dom-class",
     "dojo/dom-style",
     "dojo/dom-construct",
     "dojo/_base/array",
     "dojo/_base/lang",
-    "dojo/text",
-    "dojo/html",
-    "dojo/_base/event",
+    "dojo/on",
+    "dojo/_base/event"
 
-
-], function (declare, _WidgetBase, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, lang, dojoText, dojoHtml, dojoEvent) {
+], function (declare, _WidgetBase, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoOn, dojoEvent) {
     "use strict";
 
     return declare("CallNanoflowButtonWidget.widget.CallNanoflowButtonWidget", [ _WidgetBase ], {
 
 
+        // Parameters configured in the Modeler.
+        buttonCaption: "",
+        buttonName: "",
+        buttonType: "",
+        buttonClass: "",
+        buttonGlyphiconClass: "",
+        nanoflowList: null,
+
         // Internal variables.
-        _handles: null,
         _contextObj: null,
 
         constructor: function () {
-            this._handles = [];
         },
 
         postCreate: function () {
             logger.debug(this.id + ".postCreate");
+
+            var buttonHtml,
+                button;
+
+            // Create the basic HTML for the button
+            buttonHtml  = "<button type='button' class='btn mx-button btn-" + this.buttonType + "'>";
+            if (this.buttonGlyphiconClass) {
+                buttonHtml += "<span class='" + this.buttonGlyphiconClass + "'></span> "; // The space is intentional! Separation between icon and caption
+            }
+            buttonHtml += this.buttonCaption;
+            buttonHtml += "</button>";
+
+            button = dojoConstruct.place(buttonHtml, this.domNode);
+            if (this.buttonName) {
+                dojoClass.add(button, "mx-name-" + this.buttonName);
+            }
+            if (this.buttonClass) {
+                dojoClass.add(button, this.buttonClass);
+            }
+            dojoOn(button, "click", dojoLang.hitch(this, this.handleButtonClick));
+        },
+
+        handleButtonClick: function (e) {
+            dojoEvent.stop(e);
+            logger.info("Click!");
         },
 
         update: function (obj, callback) {
@@ -59,27 +84,6 @@ define([
             }
 
             this._executeCallback(callback, "_updateRendering");
-        },
-
-        // Shorthand for running a microflow
-        _execMf: function (mf, guid, cb) {
-            logger.debug(this.id + "._execMf");
-            if (mf && guid) {
-                mx.ui.action(mf, {
-                    params: {
-                        applyto: "selection",
-                        guids: [guid]
-                    },
-                    callback: lang.hitch(this, function (objs) {
-                        if (cb && typeof cb === "function") {
-                            cb(objs);
-                        }
-                    }),
-                    error: function (error) {
-                        console.debug(error.description);
-                    }
-                }, this);
-            }
         },
 
         // Shorthand for executing a callback, adds logging to your inspector

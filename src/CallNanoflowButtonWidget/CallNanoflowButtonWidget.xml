@@ -1,15 +1,57 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<widget id="CallNanoflowButtonWidget.widget.CallNanoflowButtonWidget" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
-    <name>CallNanoflowButtonWidget</name>
-    <description>The description of this widget.</description>
+<widget id="CallNanoflowButtonWidget.widget.CallNanoflowButtonWidget" needsEntityContext="true" offlineCapable="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>Call nanoflow button widget</name>
+    <description>Call nanoflows from a button</description>
 
     <icon />
 
     <properties>
-        <property key="dummyKey" type="string" required="false" defaultValue="">
-            <caption>Dummy key</caption>
-            <category>Appearance</category>
-            <description>This key was added to make the widget work in the Modeler (needs atleast 1 key). Please change/remove this one</description>
+        <property key="buttonCaption" type="translatableString">
+            <caption>Button caption</caption>
+            <category>Configuration</category>
+            <description>Button caption</description>
+        </property>
+        <property key="buttonName" type="string" required="false">
+            <caption>Name</caption>
+            <category>Configuration</category>
+            <description>Button name, will be mx-name- class on the button</description>
+        </property>
+        <property key="buttonType" type="enumeration" defaultValue="default">
+            <caption>Button type</caption>
+            <category>Configuration</category>
+            <description>Button type</description>
+            <enumerationValues>
+                <enumerationValue key="default">Default</enumerationValue>
+                <enumerationValue key="primary">Primary</enumerationValue>
+                <enumerationValue key="inverse">Inverse</enumerationValue>
+                <enumerationValue key="info">Info</enumerationValue>
+                <enumerationValue key="success">Success</enumerationValue>
+                <enumerationValue key="warning">Warning</enumerationValue>
+                <enumerationValue key="danger">Danger</enumerationValue>
+            </enumerationValues>
+        </property>
+        <property key="buttonClass" type="string" required="false">
+            <caption>Button class</caption>
+            <category>Configuration</category>
+            <description>Button class. Separate multiple values using a space</description>
+        </property>
+        <property key="buttonGlyphiconClass" type="string" required="false">
+            <caption>Glyphicon classes</caption>
+            <category>Configuration</category>
+            <description>Optional. Glyphicon classes, like glyphicon glyphicon-edit</description>
+        </property>
+        <property key="nanoflowList" type="object" isList="true" required="true">
+            <caption>Nanoflow(s)</caption>
+            <category>Configuration</category>
+            <description>The nanoflow(s) to be called. Each microflow gets the contect object as parameter and must return a boolean.</description>
+            <properties>
+                <property key="nanoflowToCall" type="nanoflow">
+                    <caption>Nanoflow</caption>
+                    <category>Configuration</category>
+                    <description></description>
+                    <returnType type="Boolean" isList="false"></returnType>
+                </property>
+            </properties>
         </property>
     </properties>
 </widget>
