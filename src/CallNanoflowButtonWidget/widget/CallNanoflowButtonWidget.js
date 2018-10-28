@@ -67,20 +67,41 @@ define([
             this._listIndex = 0;
             dojoClass.add(this._button, this.activeClass);
             logger.info("Click!");
-            this.callNanoflow();
+            this.processListItem();
         },
 
-        callNanoflow: function () {
+        processListItem: function () {
 
             var nanoflowListItem = this.nanoflowList[this._listIndex],
-                thisObj = this;
+                referenceName,
+                referencedGuid;
 
-            logger.info("Call nanoflow at index postion " + this._listIndex);
+            // Use context object or a referenced object?
+            if (nanoflowListItem.parameterEntity === this.mxcontext.getTrackEntity()) {
+                logger.info("Call nanoflow at index position " + this._listIndex + " using context object");
+                this.callNanoflow(nanoflowListItem.nanoflowToCall, this.mxcontext);
+            } else {
+                referenceName = nanoflowListItem.parameterEntity.substr(0, nanoflowListItem.parameterEntity.indexOf("/"));
+                referencedGuid = this._contextObj.getReference(referenceName);
+                mx.data.get({
+                    guid: referencedGuid,
+                    callback: function(referencedObject) {
+                        var nanoflowContext = new mendix.lib.MxContext();
+                        nanoflowContext.setTrackObject(referencedObject);
+                        logger.info("Call nanoflow at index position " + this._listIndex + " using object " + referencedObject.getEntity());
+                        this.callNanoflow(nanoflowListItem.nanoflowToCall, nanoflowContext);
+                    }
+                }, this);
+            }
+        },
+
+        callNanoflow: function (nanoflowToCall, nanoflowContext) {
+            var thisObj = this;
 
             mx.data.callNanoflow({
-                nanoflow: nanoflowListItem.nanoflowToCall,
+                nanoflow: nanoflowToCall,
                 origin: this.mxform,
-                context: this.mxcontext,
+                context: nanoflowContext,
                 callback: function(result) {
                     thisObj.handleNanoflowCallResult(result);
                 },
@@ -97,7 +118,7 @@ define([
                 if ((this._listIndex + 1) < this.nanoflowList.length) {
                     logger.info("Nanoflow completed succesfully, call next nanoflow");
                     this._listIndex++;
-                    this.callNanoflow();
+                    this.processListItem();
                 } else {
                     logger.info("Nanoflow completed succesfully, no more nanoflows to call");
                     this.finalizeButtonClick();

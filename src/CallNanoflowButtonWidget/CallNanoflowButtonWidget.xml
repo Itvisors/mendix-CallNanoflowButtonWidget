@@ -48,9 +48,14 @@
         <property key="nanoflowList" type="object" isList="true" required="true">
             <caption>Nanoflow(s)</caption>
             <category>Configuration</category>
-            <description>The nanoflow(s) to be called. Each microflow gets the contect object as parameter and must return a boolean.</description>
+            <description>The nanoflow(s) to be called.</description>
             <properties>
-                <property key="nanoflowToCall" type="nanoflow">
+            <property key="parameterEntity" type="entity" isPath="optional" pathType="reference">
+                <caption>Entity</caption>
+                <category>Configuration</category>
+                <description>The parameter entity. Just choose the context entity to pass that in or choose an association.</description>
+            </property>
+                <property key="nanoflowToCall" type="nanoflow" entityProperty="parameterEntity">
                     <caption>Nanoflow</caption>
                     <category>Configuration</category>
                     <description></description>
