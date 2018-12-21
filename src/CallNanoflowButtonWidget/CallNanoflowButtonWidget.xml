@@ -63,5 +63,21 @@
                 </property>
             </properties>
         </property>
+        <property key="showProgress" type="boolean" defaultValue="false">
+            <caption>Show progress</caption>
+            <category>Configuration</category>
+            <description>Show progress bar</description>
+        </property>
+        <property key="callDirectly" type="boolean" defaultValue="false">
+            <caption>Call directly</caption>
+            <category>Configuration</category>
+            <description>Directly call the configured nanoflows, do not wait for button click. (No button will be rendered.)</description>
+        </property>
+        <property key="closePage" type="boolean" defaultValue="false">
+            <caption>Close page</caption>
+            <category>Configuration</category>
+            <description>Close the page after calling the configured nanoflows.</description>
+        </property>
+
     </properties>
 </widget>

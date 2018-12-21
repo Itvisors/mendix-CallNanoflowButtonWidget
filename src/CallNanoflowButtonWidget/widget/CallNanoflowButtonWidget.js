@@ -23,12 +23,16 @@ define([
         activeClass: "",
         buttonGlyphiconClass: "",
         nanoflowList: null,
+        showProgress: false,
+        callDirectly: false,
+        closePage: false,
 
         // Internal variables.
         _contextObj: null,
         _button: null,
         _clickHandlerActive: false,
         _listIndex: null,
+        _progressId: null,
 
         constructor: function () {
         },
@@ -36,37 +40,51 @@ define([
         postCreate: function () {
             logger.debug(this.id + ".postCreate");
 
-            var buttonHtml;
+            var buttonHtml,
+                thisObj = this;
 
-            // Create the basic HTML for the button
-            buttonHtml  = "<button type='button' class='btn mx-button btn-" + this.buttonType + "'>";
-            if (this.buttonGlyphiconClass) {
-                buttonHtml += "<span class='" + this.buttonGlyphiconClass + "'></span> "; // The space is intentional! Separation between icon and caption
-            }
-            buttonHtml += this.buttonCaption;
-            buttonHtml += "</button>";
+            if (this.callDirectly) {
+                // Call the nanoflows directly, do not create button. Use timeout to allow Mendix to complete post create first.
+                setTimeout( function() {
+                    thisObj.processList();
+                }, 100);
+            } else {
+                // Create the basic HTML for the button
+                buttonHtml  = "<button type='button' class='btn mx-button btn-" + this.buttonType + "'>";
+                if (this.buttonGlyphiconClass) {
+                    buttonHtml += "<span class='" + this.buttonGlyphiconClass + "'></span> "; // The space is intentional! Separation between icon and caption
+                }
+                buttonHtml += this.buttonCaption;
+                buttonHtml += "</button>";
 
-            this._button = dojoConstruct.place(buttonHtml, this.domNode);
-            if (this.buttonName) {
-                dojoClass.add(this._button, "mx-name-" + this.buttonName);
+                this._button = dojoConstruct.place(buttonHtml, this.domNode);
+                if (this.buttonName) {
+                    dojoClass.add(this._button, "mx-name-" + this.buttonName);
+                }
+                if (this.buttonClass) {
+                    dojoClass.add(this._button, this.buttonClass);
+                }
+                dojoOn(this._button, "click", dojoLang.hitch(this, this.handleButtonClick));
             }
-            if (this.buttonClass) {
-                dojoClass.add(this._button, this.buttonClass);
-            }
-            dojoOn(this._button, "click", dojoLang.hitch(this, this.handleButtonClick));
         },
 
         handleButtonClick: function (e) {
-            var thisObj = this;
             dojoEvent.stop(e);
             if (this._clickHandlerActive) {
                 logger.info("Click ignored, already processing!");
                 return;
             }
             this._clickHandlerActive = true;
-            this._listIndex = 0;
             dojoClass.add(this._button, this.activeClass);
             logger.info("Click!");
+            this.processList();
+        },
+
+        processList: function () {
+            if (this.showProgress) {
+                this._showProgress();
+            }
+            this._listIndex = 0;
             this.processListItem();
         },
 
@@ -107,7 +125,7 @@ define([
                 },
                 error: function(error) {
                     logger.info("Nanoflow call failed, error: " + error.message);
-                    thisObj.finalizeButtonClick();
+                    thisObj.finalizeNanoflowCalls();
                 }
             });
         },
@@ -121,18 +139,26 @@ define([
                     this.processListItem();
                 } else {
                     logger.info("Nanoflow completed succesfully, no more nanoflows to call");
-                    this.finalizeButtonClick();
+                    this.finalizeNanoflowCalls();
                 }
             } else {
                 logger.info("Nanoflow returned false value, stop processing");
-                this.finalizeButtonClick();
+                this.finalizeNanoflowCalls();
             }
         },
 
-        finalizeButtonClick: function () {
-            logger.info("Click handling done!");
+        finalizeNanoflowCalls: function () {
             this._clickHandlerActive = false;
-            dojoClass.remove(this._button, this.activeClass);
+            this._hideProgress();
+            if (this.closePage) {
+                logger.info("Click handling done, closing the page!");
+                this.mxform.close();
+            } else {
+                logger.info("Click handling done!");
+                if (this._button) {
+                    dojoClass.remove(this._button, this.activeClass);
+                }
+            }
         },
 
         update: function (obj, callback) {
@@ -148,6 +174,20 @@ define([
 
         uninitialize: function () {
             logger.debug(this.id + ".uninitialize");
+            this._hideProgress();
+        },
+
+        _showProgress: function () {
+            if (!this._progressId) {
+                this._progressId = window.mx.ui.showProgress(null, true);
+            }
+        },
+
+        _hideProgress: function () {
+            if (this._progressId) {
+                window.mx.ui.hideProgress(this._progressId);
+                this._progressId = null;
+            }
         },
 
         _updateRendering: function (callback) {
