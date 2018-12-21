@@ -50,7 +50,7 @@
             <category>Configuration</category>
             <description>The nanoflow(s) to be called.</description>
             <properties>
-            <property key="parameterEntity" type="entity" isPath="optional" pathType="reference">
+            <property key="parameterEntity" type="entity" allowNonPersistableEntities="true" isPath="optional" pathType="reference">
                 <caption>Entity</caption>
                 <category>Configuration</category>
                 <description>The parameter entity. Just choose the context entity to pass that in or choose an association.</description>
