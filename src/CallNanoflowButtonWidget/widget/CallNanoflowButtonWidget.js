@@ -26,6 +26,7 @@ define([
         showProgress: false,
         callDirectly: false,
         closePage: false,
+        loggingActive: false,
 
         // Internal variables.
         _contextObj: null,
@@ -71,12 +72,12 @@ define([
         handleButtonClick: function (e) {
             dojoEvent.stop(e);
             if (this._clickHandlerActive) {
-                logger.info("Click ignored, already processing!");
+                this._writeToLogger("Click ignored, already processing!");
                 return;
             }
             this._clickHandlerActive = true;
             dojoClass.add(this._button, this.activeClass);
-            logger.info("Click!");
+            this._writeToLogger("Click!");
             this.processList();
         },
 
@@ -96,7 +97,7 @@ define([
 
             // Use context object or a referenced object?
             if (nanoflowListItem.parameterEntity === this.mxcontext.getTrackEntity()) {
-                logger.info("Call nanoflow at index position " + this._listIndex + " using context object");
+                this._writeToLogger("Call nanoflow at index position " + this._listIndex + " using context object");
                 this.callNanoflow(nanoflowListItem.nanoflowToCall, this.mxcontext);
             } else {
                 referenceName = nanoflowListItem.parameterEntity.substr(0, nanoflowListItem.parameterEntity.indexOf("/"));
@@ -106,7 +107,7 @@ define([
                     callback: function(referencedObject) {
                         var nanoflowContext = new mendix.lib.MxContext();
                         nanoflowContext.setTrackObject(referencedObject);
-                        logger.info("Call nanoflow at index position " + this._listIndex + " using object " + referencedObject.getEntity());
+                        this._writeToLogger("Call nanoflow at index position " + this._listIndex + " using object " + referencedObject.getEntity());
                         this.callNanoflow(nanoflowListItem.nanoflowToCall, nanoflowContext);
                     }
                 }, this);
@@ -124,7 +125,7 @@ define([
                     thisObj.handleNanoflowCallResult(result);
                 },
                 error: function(error) {
-                    logger.info("Nanoflow call failed, error: " + error.message);
+                    thisObj._writeToLogger("Nanoflow call failed, error: " + error.message);
                     thisObj.finalizeNanoflowCalls();
                 }
             });
@@ -134,15 +135,15 @@ define([
 
             if (result) {
                 if ((this._listIndex + 1) < this.nanoflowList.length) {
-                    logger.info("Nanoflow completed succesfully, call next nanoflow");
+                    this._writeToLogger("Nanoflow completed succesfully, call next nanoflow");
                     this._listIndex++;
                     this.processListItem();
                 } else {
-                    logger.info("Nanoflow completed succesfully, no more nanoflows to call");
+                    this._writeToLogger("Nanoflow completed succesfully, no more nanoflows to call");
                     this.finalizeNanoflowCalls();
                 }
             } else {
-                logger.info("Nanoflow returned false value, stop processing");
+                this._writeToLogger("Nanoflow returned false value, stop processing");
                 this.finalizeNanoflowCalls();
             }
         },
@@ -151,10 +152,10 @@ define([
             this._clickHandlerActive = false;
             this._hideProgress();
             if (this.closePage) {
-                logger.info("Click handling done, closing the page!");
+                this._writeToLogger("Click handling done, closing the page!");
                 this.mxform.close();
             } else {
-                logger.info("Click handling done!");
+                this._writeToLogger("Click handling done!");
                 if (this._button) {
                     dojoClass.remove(this._button, this.activeClass);
                 }
@@ -200,6 +201,14 @@ define([
             }
 
             this._executeCallback(callback, "_updateRendering");
+        },
+
+        _writeToLogger: function (message) {
+            if (this.loggingActive) {
+                logger.info(this.id + " - " + message);
+                console.log(this.id + " - " + message);
+            }
+
         },
 
         // Shorthand for executing a callback, adds logging to your inspector
