@@ -1,0 +1,5 @@
+
+/* For use in the appliations that use the widget to hide a popup which uses the widget to call the nanoflow directly */
+div.HiddenPopup.modal-dialog .modal-content {
+    opacity: 0;
+}
