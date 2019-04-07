@@ -8,17 +8,17 @@
     <properties>
         <property key="buttonCaption" type="translatableString">
             <caption>Button caption</caption>
-            <category>Configuration</category>
+            <category>Button</category>
             <description>Button caption</description>
         </property>
         <property key="buttonName" type="string" required="false">
             <caption>Name</caption>
-            <category>Configuration</category>
+            <category>Button</category>
             <description>Button name, will be mx-name- class on the button</description>
         </property>
         <property key="buttonType" type="enumeration" defaultValue="default">
             <caption>Button type</caption>
-            <category>Configuration</category>
+            <category>Button</category>
             <description>Button type</description>
             <enumerationValues>
                 <enumerationValue key="default">Default</enumerationValue>
@@ -32,17 +32,17 @@
         </property>
         <property key="buttonClass" type="string" required="false">
             <caption>Button class</caption>
-            <category>Configuration</category>
+            <category>Button</category>
             <description>Button class. Separate multiple values using a space</description>
         </property>
         <property key="activeClass" type="string" defaultValue="nanoflowRunning">
             <caption>Active class</caption>
-            <category>Configuration</category>
+            <category>Button</category>
             <description>While the nanoflow(s) are called, this class is put on the button. Separate multiple values using a space</description>
         </property>
         <property key="buttonGlyphiconClass" type="string" required="false">
             <caption>Glyphicon classes</caption>
-            <category>Configuration</category>
+            <category>Button</category>
             <description>Optional. Glyphicon classes, like glyphicon glyphicon-edit</description>
         </property>
         <property key="nanoflowList" type="object" isList="true" required="true">
