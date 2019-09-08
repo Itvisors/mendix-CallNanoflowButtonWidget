@@ -125,7 +125,7 @@ define([
                     thisObj.handleNanoflowCallResult(result);
                 },
                 error: function(error) {
-                    thisObj._writeToLogger("Nanoflow call failed, error: " + error.message);
+                    thisObj._writeToLogger("Nanoflow call failed, error: " + error.message, true);
                     thisObj.finalizeNanoflowCalls();
                 }
             });
@@ -203,8 +203,8 @@ define([
             this._executeCallback(callback, "_updateRendering");
         },
 
-        _writeToLogger: function (message) {
-            if (this.loggingActive) {
+        _writeToLogger: function (message, isError) {
+            if (this.loggingActive || isError) {
                 logger.info(this.id + " - " + message);
                 console.log(this.id + " - " + message);
             }
