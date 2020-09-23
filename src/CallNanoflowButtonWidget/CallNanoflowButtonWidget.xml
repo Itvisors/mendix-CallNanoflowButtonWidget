@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<widget id="CallNanoflowButtonWidget.widget.CallNanoflowButtonWidget" needsEntityContext="true" offlineCapable="true" xmlns="http://www.mendix.com/widget/1.0/">
+<widget id="CallNanoflowButtonWidget.widget.CallNanoflowButtonWidget" needsEntityContext="true" offlineCapable="true"
+    xmlns="http://www.mendix.com/widget/1.0/">
     <name>Call nanoflow button widget</name>
     <description>Call nanoflows from a button</description>
 
@@ -50,11 +51,11 @@
             <category>Configuration</category>
             <description>The nanoflow(s) to be called.</description>
             <properties>
-            <property key="parameterEntity" type="entity" allowNonPersistableEntities="true" isPath="optional" pathType="reference">
-                <caption>Entity</caption>
-                <category>Configuration</category>
-                <description>The parameter entity. Just choose the context entity to pass that in or choose an association.</description>
-            </property>
+                <property key="parameterEntity" type="entity" allowNonPersistableEntities="true" isPath="optional" pathType="reference">
+                    <caption>Entity</caption>
+                    <category>Configuration</category>
+                    <description>The parameter entity. Just choose the context entity to pass that in or choose an association.</description>
+                </property>
                 <property key="nanoflowToCall" type="nanoflow" entityProperty="parameterEntity">
                     <caption>Nanoflow</caption>
                     <category>Configuration</category>
@@ -62,6 +63,20 @@
                     <returnType type="Boolean" isList="false"></returnType>
                 </property>
             </properties>
+        </property>
+        <property key="exceptionNanoflowToCall" type="nanoflow" required="false">
+            <caption>Exception nanoflow</caption>
+            <category>Exceptionhandling</category>
+            <description>Nanoflow to call in case of exception</description>
+            <returnType type="Void" isList="false"></returnType>
+        </property>
+        <property key="exceptionMessage" type="attribute" required="false">
+            <caption>Exceptionmessage</caption>
+            <category>Exceptionhandling</category>
+            <description>Attribute which will contain the exceptionmessage</description>
+            <attributeTypes>
+                <attributeType name="String" />
+            </attributeTypes>
         </property>
         <property key="showProgress" type="boolean" defaultValue="false">
             <caption>Show progress</caption>

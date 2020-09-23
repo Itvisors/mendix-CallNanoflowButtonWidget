@@ -27,6 +27,8 @@ define([
         callDirectly: false,
         closePage: false,
         loggingActive: false,
+        exceptionNanoflowToCall: null,
+        exceptionMessage: "",
 
         // Internal variables.
         _contextObj: null,
@@ -116,7 +118,6 @@ define([
 
         callNanoflow: function (nanoflowToCall, nanoflowContext) {
             var thisObj = this;
-
             mx.data.callNanoflow({
                 nanoflow: nanoflowToCall,
                 origin: this.mxform,
@@ -125,6 +126,20 @@ define([
                     thisObj.handleNanoflowCallResult(result);
                 },
                 error: function(error) {
+                    if (thisObj.exceptionNanoflowToCall != null && thisObj.exceptionMessage != null) {
+                        var errorObj = {name: error.name, message: error.message, stack: error.stack};
+                        thisObj._contextObj.set(thisObj.exceptionMessage, JSON.stringify(errorObj));
+                        mx.data.callNanoflow({
+                            nanoflow: thisObj.exceptionNanoflowToCall,
+                            origin: thisObj.mxform,
+                            context: thisObj.mxcontext,
+                            callback: function(result) {
+                            },
+                            error: function(error) {
+                                thisObj._writeToLogger(error.message, true);
+                            }
+                        });
+                    }
                     thisObj._writeToLogger("Nanoflow call failed, error: " + error.message, true);
                     thisObj.finalizeNanoflowCalls();
                 }
